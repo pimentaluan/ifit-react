@@ -10,6 +10,8 @@ const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 function Treinos() {
+
+
   let partesDoCorpo = ['Tórax, Ombro ou Tríceps', 'Costas, Abdômen ou Bíceps', 'Parte Inferior, Pernas ou Glúteo'];
   let diaAtual = 0;
 
@@ -17,6 +19,21 @@ function Treinos() {
   const objetivoRef = useRef(null);
   const disponibilidadeRef = useRef(null);
   const localRef = useRef(null);
+  const idadeRef = useRef(null);
+  const regex = /^\d{2}\/\d{2}\/\d{4}$/;
+
+  
+  const validacao_idade = () => {
+    const input = idadeRef.current.value;
+
+    if (regex.test(input)) {
+      window.alert("Formato de data válido (DD/MM/AA)");
+
+    } else {
+      window.alert("Formato de data inválido");
+    }
+  };
+
 
   const handleCriarTreino = () => {
     const lesao = lesaoRef.current.value;
@@ -95,15 +112,15 @@ function Treinos() {
   };
 
   return (
-    <main>
+    <main className='treinos'>
       <header>
         <Link to="/">
-          <img src={logo} alt="Home" />
+          <img className='imgtreinos' src={logo} alt="Home" />
         </Link>
       </header>
       <h1>Crie seu próprio treino</h1>
 
-      <section id="infoCaracteristicas">
+      <section className="secaotreinos" id="infoCaracteristicas">
         <div id="linha_1_caracter" className="linhas">
           <div>
             <p>Altura (cm)</p>
@@ -114,12 +131,20 @@ function Treinos() {
             <input id="peso" type="number" />
           </div>
           <div>
-            <p>Data de nascimento</p>
-            <input id="idade" type="number" />
+            <p>Nascimento</p>
+            <input id="idade" type="text" ref={idadeRef} />
           </div>
         </div>
   
         <div id="linha_2_caracter" className="linhas">
+        <div>
+            <p>Gênero</p>
+            <select defaultValue="none">
+              <option value="none" disabled hidden>Seleção</option>
+              <option value="masculino">Masculino</option>
+              <option value="feminino">Feminino</option>
+            </select>
+          </div>
           <div>
             <p>Lesão</p>
             <select ref={lesaoRef} defaultValue="none">
@@ -172,7 +197,7 @@ function Treinos() {
         </div>
         </section>
 
-      <section id="infoTreinos">
+      <section className="secaotreinos" id="infoTreinos">
       <div id="navegacao" className="hidden">
           <i id="diaAnterior" className="fas fa-arrow-left"></i>
           <i id="proximoDia" className="fas fa-arrow-right"></i>
