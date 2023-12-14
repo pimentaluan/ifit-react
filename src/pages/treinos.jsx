@@ -20,17 +20,20 @@ function Treinos() {
   const disponibilidadeRef = useRef(null);
   const localRef = useRef(null);
   const idadeRef = useRef(null);
-  const regex = /^\d{2}\/\d{2}\/\d{4}$/;
+  const botaoRef = useRef(null);
+
+  const regex = /^(0[1-9]|[12][0-9]|3[01])\/(0[1-9]|1[0-2])\/(19[0-9]{2}|200[0-9]|201[0-9]|202[0-3])$/;
 
   
   const validacao_idade = () => {
     const input = idadeRef.current.value;
 
     if (regex.test(input)) {
-      window.alert("Formato de data válido (DD/MM/AA)");
+      botaoRef.current.style.display = 'block';
 
-    } else {
-      window.alert("Formato de data inválido");
+    }else {
+      botaoRef.current.style.display = 'none';
+      window.alert('Você precisa digitar a data de nascimento no formato "DD/MM/AAAA"') 
     }
   };
 
@@ -124,15 +127,15 @@ function Treinos() {
         <div id="linha_1_caracter" className="linhas">
           <div>
             <p>Altura (cm)</p>
-            <input id="altura" type="number" />
+            <input id="altura" type="number" placeholder="XYZ"/>
           </div>
           <div>
             <p>Peso (kg)</p>
-            <input id="peso" type="number" />
+            <input id="peso" type="number" placeholder="XY"/>
           </div>
           <div>
             <p>Nascimento</p>
-            <input id="idade" type="text" ref={idadeRef} />
+            <input id="idade" type="text" ref={idadeRef} onBlur={validacao_idade} placeholder="DD/MM/AAAA"/>
           </div>
         </div>
   
@@ -193,7 +196,7 @@ function Treinos() {
         </div>
   
         <div id="linha_5_caracter" className="linhas">
-        <button id="montarTreino" onClick={handleCriarTreino}>Criar treino</button>
+        <button ref={botaoRef} style={{ display: 'none' }} id="montarTreino" onClick={handleCriarTreino}>Criar treino</button>
         </div>
         </section>
 
