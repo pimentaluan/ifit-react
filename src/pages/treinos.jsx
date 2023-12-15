@@ -123,57 +123,58 @@ function Treinos() {
       console.error('Não há treinos para exibir!');
       return;
     }
-
+  
     if (dia >= treinos.length) {
       diaAtual = 0;
       dia = 0;
     }
-
+  
     if (dia < 0) {
       diaAtual = treinos.length - 1;
       dia = treinos.length - 1;
     }
-
+  
     const treinosList = document.getElementById('treinos');
     treinosList.innerHTML = '';
-
+  
     const navegacao = document.getElementById('navegacao');
     navegacao.style.display = 'block';
-
+  
     const treinoItem = document.createElement('div');
     treinoItem.className = 'treino';
-
+  
     const parteDoCorpo = document.createElement('h2');
     parteDoCorpo.textContent = `Dia ${dia + 1}: ${treinos[dia].parteDoCorpo}`;
     treinoItem.appendChild(parteDoCorpo);
-
+  
     for (let exercicio of treinos[dia].exercicios) {
       const exercicioDiv = document.createElement('div');
-
+  
       const exercicioNome = document.createElement('span');
       exercicioNome.className = 'exercicio';
       exercicioNome.textContent = exercicio.nome;
-
+  
       const detalhesDiv = document.createElement('div');
       detalhesDiv.className = 'detalhes';
       detalhesDiv.innerHTML = `${exercicio.series} séries - ${exercicio.repeticoes} repetições`;
       detalhesDiv.style.display = 'none';
-
+  
       exercicioNome.addEventListener('click', function () {
         detalhesDiv.style.display = detalhesDiv.style.display === 'none' ? 'block' : 'none';
       });
-
+  
       exercicioDiv.appendChild(exercicioNome);
       exercicioDiv.appendChild(detalhesDiv);
-
+  
       treinoItem.appendChild(exercicioDiv);
     }
-
+  
     treinosList.appendChild(treinoItem);
-
+  
     const infoCaracteristicas = document.getElementById('infoCaracteristicas');
     infoCaracteristicas.style.display = 'none';
   };
+  
 
   const handleClickDiaAnterior = () => {
     setDiaAtual((prevDia) => (prevDia === 0 ? treinos.length - 1 : prevDia - 1));
