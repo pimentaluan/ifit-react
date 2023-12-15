@@ -103,4 +103,16 @@ body {
 #infoTreinos {
     display: none;
   }
-  
+
+.seta{
+    margin-left: 100px;
+    margin-right: 100px;
+    margin-bottom: 20px;
+  }
+
+.seta:hover{
+  color: #1E1E1E;
+  margin-left: 100px;
+  margin-right: 100px;
+  margin-bottom: 20px;
+  }

@@ -26,7 +26,6 @@ function Treinos() {
 
   const validacao_idade = () => {
     const input = idadeRef.current.value;
-
     if (regex.test(input)) {
       botaoRef.current.style.display = 'block';
     } else {
@@ -90,20 +89,20 @@ function Treinos() {
       let treinos = [];
 
       for (let parte of partesTrabalhadas) {
-        let possiveisExercicios = selecionarExerciciosAleatorios(exerciciosPorParte[parte], 3);
-
+        let possiveisExercicios = selecionarExerciciosAleatorios(exerciciosPorParte[parte], 6);
+      
         if (possiveisExercicios.length === 0) {
           console.log(`Não há exercícios disponíveis para ${parte} com o objetivo ${objetivoRef.current.value} no local ${localRef.current.value}.`);
           continue;
         }
-
+      
         let exerciciosSelecionados = selecionarExerciciosAleatorios(possiveisExercicios, Math.min(possiveisExercicios.length, 6 + Math.floor(Math.random() * 3)));
-
+      
         treinos.push({
           parteDoCorpo: parte,
           exercicios: exerciciosSelecionados
         });
-      }
+      }      
 
       setTreinos(treinos);
   }
@@ -171,6 +170,9 @@ function Treinos() {
     }
 
     treinosList.appendChild(treinoItem);
+
+    const infoCaracteristicas = document.getElementById('infoCaracteristicas');
+    infoCaracteristicas.style.display = 'none';
   };
 
   const handleClickDiaAnterior = () => {
@@ -273,8 +275,8 @@ function Treinos() {
 
         <section className="secaotreinos" id="infoTreinos">
         <div id="navegacao">
-        <FontAwesomeIcon icon={faArrowLeft} onClick={handleClickDiaAnterior} />
-        <FontAwesomeIcon icon={faArrowRight} onClick={handleClickProximoDia} />
+        <FontAwesomeIcon className='seta' icon={faArrowLeft} onClick={handleClickDiaAnterior} />
+        <FontAwesomeIcon className='seta' icon={faArrowRight} onClick={handleClickProximoDia} />
         </div>
         <div id="treinos"></div>
       </section>

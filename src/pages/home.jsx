@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import logo from '../imgs/logo.png';
 import slider1 from '../imgs/slider.png';
@@ -6,10 +6,62 @@ import slider2 from '../imgs/slider 2.jpg';
 import slider3 from '../imgs/slider 3.jpg';
 import mascote from '../imgs/Mascote.png';
 import unidade3 from '../imgs/unidade 3.png';
-import '../style/home.css'
+import '../style/home.css';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faInstagram, faTwitter, faFacebook } from '@fortawesome/free-brands-svg-icons';
 
 function Home() {
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [selectedPlan, setSelectedPlan] = useState("mensal");
+  const [price, setPrice] = useState("Selecione um plano");
+
+  const imageSlides = [slider1, slider2, slider3];
+  const circles = [0, 1, 2];
+
+  const nextImage = () => {
+    setCurrentIndex((prevIndex) => (prevIndex + 1) % imageSlides.length);
+  };
+
+  useEffect(() => {
+    const interval = setInterval(nextImage, 5000);
+    return () => clearInterval(interval);
+  }, [currentIndex]);
+
+  const handleCircleClick = (index) => {
+    setCurrentIndex(index);
+  };
+
+  const planos = [
+    { nome: "Plano Mensal", preco: "R$30/mês" },
+    { nome: "Plano Trimestral", preco: "R$80/trimestre" },
+    { nome: "Plano Semestral", preco: "R$150/semestre" },
+    { nome: "Plano Anual", preco: "R$280/ano" }
+  ];
+
+  const handlePlanChange = (e) => {
+    const selectedPlan = e.target.value;
+    setSelectedPlan(selectedPlan);
+
+    const filteredPlan = planos.filter(plan => plan.nome.toLowerCase().includes(selectedPlan));
+    const price = filteredPlan.reduce((total, plan) => total + plan.preco, "");
+
+    setPrice(price);
+  };
+
+  const createPlanCard = (plan) => {
     return (
+      <div className="plan-card" key={plan.nome}>
+        <h3>{plan.nome}</h3>
+        <p>{plan.preco}</p>
+        <img src={mascote} alt="Mascote" id='mascote'/>
+      </div>
+    );
+  };
+
+  const filteredPlan = planos.filter(plan => plan.nome.toLowerCase().includes(selectedPlan));
+  const planCards = filteredPlan.map(createPlanCard);
+
+  return (
         <div>
             <header className='headerhome'>
                 <div className="logo">
@@ -26,24 +78,20 @@ function Home() {
                 </nav>
             </header>
   
-        <section className="secaohome" id="home">
-          <div className="image-carousel">
-            <div className="image-slide">
-              <img src={slider1} alt="Imagem 1" />
+            <section className="secaohome" id="home">
+        <div className="image-carousel">
+          {imageSlides.map((slide, index) => (
+            <div className={index === currentIndex ? "image-slide active" : "image-slide"} key={index}>
+              <img src={slide} alt={`Imagem ${index + 1}`} />
             </div>
-            <div className="image-slide">
-              <img src={slider2} alt="Imagem 2" />
-            </div>
-            <div className="image-slide">
-              <img src={slider3} alt="Imagem 3" />
-            </div>
-          </div>
-          <div className="navigation">
-            <div className="circle" data-index="0"></div>
-            <div className="circle" data-index="1"></div>
-            <div className="circle" data-index="2"></div>
-          </div>
-        </section>
+          ))}
+        </div>
+        <div className="navigation">
+          {circles.map((_, index) => (
+            <div className={index === currentIndex ? "circle active" : "circle"} key={index} onClick={() => handleCircleClick(index)}></div>
+          ))}
+        </div>
+      </section>
   
         <section className="secaohome" id="nossa-academia">
           <div id="nossaacademiatexto">
@@ -77,30 +125,40 @@ function Home() {
         <section className="secaohome" id="planos">
         <h2 className='h2home'> PLANOS</h2>
   
+        <div className="plan-selector">
+          <label htmlFor="plan">Escolha um plano: </label>
+          <select id="plan" onChange={handlePlanChange} value={selectedPlan}>
+            <option value="mensal">Plano Mensal</option>
+            <option value="trimestral">Plano Trimestral</option>
+            <option value="semestral">Plano Semestral</option>
+            <option value="anual">Plano Anual</option>
+          </select>
+        </div>
   
-  <div className="plan-selector">
-    <label htmlFor="plan">Escolha um plano: </label>
-    <select id="plan">
-      <option value="mensal">Plano Mensal</option>
-      <option value="trimestral">Plano Trimestral</option>
-      <option value="semestral">Plano Semestral</option>
-      <option value="anual">Plano Anual</option>
-    </select>
-  </div>
+        <div className="plan-price">
+          <p>Preço: <span id="price">{price}</span></p>
+        </div>
   
-  <div className="plan-price">
-    <p>Preço: <span id="price">Selecione um plano</span></p>
-  </div>
-  
-  <div className="card-container" id="plan-cards">
-  </div>
-        </section>
+        <div className="card-container" id="plan-cards">
+          {planCards}
+        </div>
+      </section>
+
   
         <section className="secaohome" id="contato">
           <div className="social-icons">
-            <a href="#" target="_blank"><i className="fab fa-instagram text-instagram"></i></a>
-            <a href="#" target="_blank"><i className="fab fa-twitter text-twitter"></i></a>
-            <a href="#" target="_blank"><i className="fab fa-facebook text-facebook"></i></a>
+          <a href="#" target="_blank">
+            <FontAwesomeIcon className='icone' icon={faInstagram} />
+          </a>
+
+          <a href="#" target="_blank">
+            <FontAwesomeIcon className='icone' icon={faTwitter} />
+          </a>
+
+          <a href="#" target="_blank">
+            <FontAwesomeIcon className='icone' icon={faFacebook} />
+          </a>
+
           </div>
         </section>
             

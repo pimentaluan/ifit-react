@@ -296,6 +296,10 @@
   color: #FFFFFF;
 }
 
+.icone{
+  font-size: 2rem;
+}
+
 
 @media screen and (max-width: 800px) {
   nav ul {
