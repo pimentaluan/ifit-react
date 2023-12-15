@@ -2,6 +2,8 @@ import React, { useRef, useState, useEffect } from 'react';
 import logo from '../imgs/logo.png';
 import { Link } from 'react-router-dom';
 import '../style/treinos.css';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faArrowLeft, faArrowRight } from '@fortawesome/free-solid-svg-icons';
 import { createClient } from '@supabase/supabase-js';
 
 const supabaseUrl = 'https://lnvajrohqoobgbonfurp.supabase.co';
@@ -11,7 +13,7 @@ const supabase = createClient(supabaseUrl, supabaseKey);
 
 function Treinos() {
   const partesDoCorpo = ['Tórax, Ombro ou Tríceps', 'Costas, Abdômen ou Bíceps', 'Parte Inferior, Pernas ou Glúteo'];
-  let diaAtual = 0;
+
 
   const lesaoRef = useRef(null);
   const objetivoRef = useRef(null);
@@ -57,6 +59,7 @@ function Treinos() {
   };
 
   const [treinos, setTreinos] = useState([]);
+  const [diaAtual, setDiaAtual] = useState(0);
 
   const montarTreinos = async () => {
       let { data: exerciciosData, error } = await supabase
@@ -108,10 +111,13 @@ function Treinos() {
   const handleCriarTreino = async () => {
     try {
       await montarTreinos();
+      const infoTreinosDiv = document.getElementById('infoTreinos');
+      infoTreinosDiv.style.display = 'block'; 
     } catch (error) {
       console.error('Erro ao criar o treino:', error);
     }
   };
+  
 
   const mostrarDia = (dia) => {
     if (!treinos || !Array.isArray(treinos) || treinos.length === 0) {
@@ -142,7 +148,6 @@ function Treinos() {
     parteDoCorpo.textContent = `Dia ${dia + 1}: ${treinos[dia].parteDoCorpo}`;
     treinoItem.appendChild(parteDoCorpo);
 
-    // Adicionando os exercícios neste ponto
     for (let exercicio of treinos[dia].exercicios) {
       const exercicioDiv = document.createElement('div');
 
@@ -169,16 +174,16 @@ function Treinos() {
   };
 
   const handleClickDiaAnterior = () => {
-    mostrarDia(diaAtual - 1);
+    setDiaAtual((prevDia) => (prevDia === 0 ? treinos.length - 1 : prevDia - 1));
   };
-
+  
   const handleClickProximoDia = () => {
-    mostrarDia(diaAtual + 1);
+    setDiaAtual((prevDia) => (prevDia === treinos.length - 1 ? 0 : prevDia + 1));
   };
-
+  
   useEffect(() => {
     mostrarDia(diaAtual);
-  }, [treinos]);
+  }, [diaAtual, treinos]);
 
   return (
     <main className='treinos'>
@@ -267,9 +272,9 @@ function Treinos() {
         </section>
 
         <section className="secaotreinos" id="infoTreinos">
-        <div id="navegacao" className="hidden">
-          <i id="diaAnterior" className="fas fa-arrow-left" onClick={handleClickDiaAnterior}></i>
-          <i id="proximoDia" className="fas fa-arrow-right" onClick={handleClickProximoDia}></i>
+        <div id="navegacao">
+        <FontAwesomeIcon icon={faArrowLeft} onClick={handleClickDiaAnterior} />
+        <FontAwesomeIcon icon={faArrowRight} onClick={handleClickProximoDia} />
         </div>
         <div id="treinos"></div>
       </section>

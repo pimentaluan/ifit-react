@@ -9,6 +9,14 @@ body {
     color:#fdfdfd
 }
 
+#infoTreinos{
+    background-color: white;
+    width: 40%;
+    margin-top: 30px;
+}
+#infoTreinos div{
+    margin: 10px;
+}
 .imgtreinos img{
   width: 350px;
 }
@@ -91,3 +99,8 @@ body {
   display: none;
   margin-top: 10px;
 }
+
+#infoTreinos {
+    display: none;
+  }
+  
