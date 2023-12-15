@@ -168,6 +168,14 @@ function Treinos() {
     treinosList.appendChild(treinoItem);
   };
 
+  const handleClickDiaAnterior = () => {
+    mostrarDia(diaAtual - 1);
+  };
+
+  const handleClickProximoDia = () => {
+    mostrarDia(diaAtual + 1);
+  };
+
   useEffect(() => {
     mostrarDia(diaAtual);
   }, [treinos]);
@@ -260,8 +268,8 @@ function Treinos() {
 
         <section className="secaotreinos" id="infoTreinos">
         <div id="navegacao" className="hidden">
-          <i id="diaAnterior" className="fas fa-arrow-left"></i>
-          <i id="proximoDia" className="fas fa-arrow-right"></i>
+          <i id="diaAnterior" className="fas fa-arrow-left" onClick={handleClickDiaAnterior}></i>
+          <i id="proximoDia" className="fas fa-arrow-right" onClick={handleClickProximoDia}></i>
         </div>
         <div id="treinos"></div>
       </section>
