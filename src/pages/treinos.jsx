@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import logo from '../imgs/logo.png';
 import { Link } from 'react-router-dom';
 import '../style/treinos.css';
@@ -10,9 +10,7 @@ const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 function Treinos() {
-
-
-  let partesDoCorpo = ['Tórax, Ombro ou Tríceps', 'Costas, Abdômen ou Bíceps', 'Parte Inferior, Pernas ou Glúteo'];
+  const partesDoCorpo = ['Tórax, Ombro ou Tríceps', 'Costas, Abdômen ou Bíceps', 'Parte Inferior, Pernas ou Glúteo'];
   let diaAtual = 0;
 
   const lesaoRef = useRef(null);
@@ -24,95 +22,155 @@ function Treinos() {
 
   const regex = /^(0[1-9]|[12][0-9]|3[01])\/(0[1-9]|1[0-2])\/(19[0-9]{2}|200[0-9]|201[0-9]|202[0-3])$/;
 
-  
   const validacao_idade = () => {
     const input = idadeRef.current.value;
 
     if (regex.test(input)) {
       botaoRef.current.style.display = 'block';
-
-    }else {
+    } else {
       botaoRef.current.style.display = 'none';
-      window.alert('Você precisa digitar a data de nascimento no formato "DD/MM/AAAA"') 
+      window.alert('ERRO! Você precisa digitar a data de nascimento no formato "DD/MM/AAAA"');
     }
   };
 
-
-  const handleCriarTreino = () => {
-    const lesao = lesaoRef.current.value;
-    const objetivo = objetivoRef.current.value;
-    const disponibilidade = disponibilidadeRef.current.value;
-    const local = localRef.current.value;
-
-    function gerarParteTrabalhada() {
-      let partes = [];
-      let i = 0;
-      while (partes.length < disponibilidade) {
-        let parte = partesDoCorpo[i % partesDoCorpo.length];
-        if (parte !== lesao) {
-          partes.push(parte);
-        }
-        i++;
+  const gerarParteTrabalhada = (disponibilidade, lesao) => {
+    let partes = [];
+    let i = 0;
+    while (partes.length < disponibilidade) {
+      let parte = partesDoCorpo[i % partesDoCorpo.length];
+      if (parte !== lesao) {
+        partes.push(parte);
       }
-      return partes;
+      i++;
     }
+    return partes;
+  };
 
-    function selecionarExerciciosAleatorios(exercicios, quantidade) {
-      let selecionados = [];
-      while (selecionados.length < quantidade && exercicios.length > 0) {
-        let indice = Math.floor(Math.random() * exercicios.length);
-        selecionados.push(exercicios[indice]);
-        exercicios.splice(indice, 1);
+  const selecionarExerciciosAleatorios = (exercicios, quantidade) => {
+    let selecionados = [];
+    while (selecionados.length < quantidade && exercicios.length > 0) {
+      let indice = Math.floor(Math.random() * exercicios.length);
+      selecionados.push(exercicios[indice]);
+      exercicios.splice(indice, 1);
+    }
+    return selecionados;
+  };
+
+  const [treinos, setTreinos] = useState([]);
+
+  const montarTreinos = async () => {
+      let { data: exerciciosData, error } = await supabase
+        .from('exercicios')
+        .select('*');
+  
+      console.log('Data dos exercícios:', exerciciosData);
+  
+      if (error) {
+        throw error;
       }
-      return selecionados;
-    }
-
-    async function montarTreinos() {
-      try {
-        let { data: exerciciosData, error } = await supabase
-          .from('exercicios')
-          .select('*');
-    
-        if (error) {
-          throw error;
+  
+      if (!exerciciosData || exerciciosData.length === 0) {
+        console.log('Não há dados de exercícios disponíveis para criar treinos.');
+        return;
+      }
+  
+      let exerciciosPorParte = {};
+      exerciciosData.forEach(exercicio => {
+        const parte = exercicio.parte;
+        if (!exerciciosPorParte[parte]) {
+          exerciciosPorParte[parte] = [];
         }
-    
-        let exerciciosPorParte = {};
-        exerciciosData.forEach(exercicio => {
-          const parte = exercicio.parte;
-          if (!exerciciosPorParte[parte]) {
-            exerciciosPorParte[parte] = [];
-          }
-          exerciciosPorParte[parte].push(exercicio);
+        exerciciosPorParte[parte].push(exercicio);
+      });
+
+      let partesTrabalhadas = gerarParteTrabalhada(disponibilidadeRef.current.value, lesaoRef.current.value);
+      let treinos = [];
+
+      for (let parte of partesTrabalhadas) {
+        let possiveisExercicios = selecionarExerciciosAleatorios(exerciciosPorParte[parte], 3);
+
+        if (possiveisExercicios.length === 0) {
+          console.log(`Não há exercícios disponíveis para ${parte} com o objetivo ${objetivoRef.current.value} no local ${localRef.current.value}.`);
+          continue;
+        }
+
+        let exerciciosSelecionados = selecionarExerciciosAleatorios(possiveisExercicios, Math.min(possiveisExercicios.length, 6 + Math.floor(Math.random() * 3)));
+
+        treinos.push({
+          parteDoCorpo: parte,
+          exercicios: exerciciosSelecionados
         });
-    
-        let partesTrabalhadas = gerarParteTrabalhada(disponibilidade, lesao);
-        let treinos = [];
-    
-        for (let parte of partesTrabalhadas) {
-          let possiveisExercicios = selecionarExerciciosAleatorios(exerciciosPorParte[parte], 3);
-    
-          if (possiveisExercicios.length === 0) {
-            console.log(`Não há exercícios disponíveis para ${parte} com o objetivo ${objetivo} no local ${local}.`);
-            continue;
-          }
-    
-          let exerciciosSelecionados = selecionarExerciciosAleatorios(possiveisExercicios, Math.min(possiveisExercicios.length, 6 + Math.floor(Math.random() * 3)));
-    
-          treinos.push({
-            parteDoCorpo: parte,
-            exercicios: exerciciosSelecionados
-          });
-        }
-    
-        console.log('Treinos: ', treinos);
-        return treinos;
-      } catch (error) {
-        console.error('Erro ao montar os treinos:', error);
-        return [];
       }
+
+      setTreinos(treinos);
+  }
+
+  const handleCriarTreino = async () => {
+    try {
+      await montarTreinos();
+    } catch (error) {
+      console.error('Erro ao criar o treino:', error);
     }
   };
+
+  const mostrarDia = (dia) => {
+    if (!treinos || !Array.isArray(treinos) || treinos.length === 0) {
+      console.error('Não há treinos para exibir!');
+      return;
+    }
+
+    if (dia >= treinos.length) {
+      diaAtual = 0;
+      dia = 0;
+    }
+
+    if (dia < 0) {
+      diaAtual = treinos.length - 1;
+      dia = treinos.length - 1;
+    }
+
+    const treinosList = document.getElementById('treinos');
+    treinosList.innerHTML = '';
+
+    const navegacao = document.getElementById('navegacao');
+    navegacao.style.display = 'block';
+
+    const treinoItem = document.createElement('div');
+    treinoItem.className = 'treino';
+
+    const parteDoCorpo = document.createElement('h2');
+    parteDoCorpo.textContent = `Dia ${dia + 1}: ${treinos[dia].parteDoCorpo}`;
+    treinoItem.appendChild(parteDoCorpo);
+
+    // Adicionando os exercícios neste ponto
+    for (let exercicio of treinos[dia].exercicios) {
+      const exercicioDiv = document.createElement('div');
+
+      const exercicioNome = document.createElement('span');
+      exercicioNome.className = 'exercicio';
+      exercicioNome.textContent = exercicio.nome;
+
+      const detalhesDiv = document.createElement('div');
+      detalhesDiv.className = 'detalhes';
+      detalhesDiv.innerHTML = `${exercicio.series} séries - ${exercicio.repeticoes} repetições`;
+      detalhesDiv.style.display = 'none';
+
+      exercicioNome.addEventListener('click', function () {
+        detalhesDiv.style.display = detalhesDiv.style.display === 'none' ? 'block' : 'none';
+      });
+
+      exercicioDiv.appendChild(exercicioNome);
+      exercicioDiv.appendChild(detalhesDiv);
+
+      treinoItem.appendChild(exercicioDiv);
+    }
+
+    treinosList.appendChild(treinoItem);
+  };
+
+  useEffect(() => {
+    mostrarDia(diaAtual);
+  }, [treinos]);
 
   return (
     <main className='treinos'>
@@ -131,7 +189,7 @@ function Treinos() {
           </div>
           <div>
             <p>Peso (kg)</p>
-            <input id="peso" type="number" placeholder="XY"/>
+            <input id="peso" type="number" placeholder="XYZ"/>
           </div>
           <div>
             <p>Nascimento</p>
@@ -200,14 +258,14 @@ function Treinos() {
         </div>
         </section>
 
-      <section className="secaotreinos" id="infoTreinos">
-      <div id="navegacao" className="hidden">
+        <section className="secaotreinos" id="infoTreinos">
+        <div id="navegacao" className="hidden">
           <i id="diaAnterior" className="fas fa-arrow-left"></i>
           <i id="proximoDia" className="fas fa-arrow-right"></i>
         </div>
         <div id="treinos"></div>
       </section>
-    </main>
+      </main>
   );
 }
 
