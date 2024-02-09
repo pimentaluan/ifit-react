@@ -88,7 +88,7 @@ function Home() {
         </div>
         <div className="navigation">
           {circles.map((_, index) => (
-            <div className={index === currentIndex ? "circle active" : "circle"} key={index} onClick={() => handleCircleClick(index)}></div>
+            <div id="circle-active" className={index === currentIndex ? "circle active" : "circle"} key={index} onClick={() => handleCircleClick(index)}></div>
           ))}
         </div>
       </section>
